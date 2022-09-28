@@ -19,7 +19,7 @@
   });
 
   function Init(cvs: HTMLCanvasElement) {
-    cvs.addEventListener('mousemove', (evt: MouseEvent) => {
+    cvs.addEventListener('click', (evt: MouseEvent) => {
       const { clientX, clientY } = evt;
       const { left, top } = cvs.getBoundingClientRect();
       //获取到鼠标再canvas中点击的位置
@@ -31,15 +31,8 @@
       const [x, y] = [mX - hafCvsW, -(mY - hafCvsH)];
       console.log("鼠标webgl坐标点击位置：", x, y);
 
-      //设置点的位置
-      const a_Position = gl.getAttribLocation(gl.program, "a_Position");
-      gl.vertexAttrib2f(a_Position, x / hafCvsW, y / hafCvsH);
-
-
-      //刷底色
-      gl.clear(gl.COLOR_BUFFER_BIT);
-      //绘制顶点
-      gl.drawArrays(gl.POINTS, 0, 1);
+      a_points.push({ x: x / hafCvsW, y: y / hafCvsH });
+      render();
     });
     cvs.width = window.innerWidth;
     cvs.height = window.innerHeight;
@@ -67,22 +60,29 @@ void main() {
     //设置attribute变量
     //获取到着色器语言里面的变量
     const a_Position = gl.getAttribLocation(gl.program, "a_Position");
-    //修改获取到的变量
-    //vertexAttrib1f(变量名,x)
-    //vertexAttrib2f(变量名,x,y)
-    //vertexAttrib3f(变量名,x,y,z)
-    //vertexAttrib4f(变量名,x,y,z,方向)
-    //设置点的位置
-    //gl.vertexAttrib2f(a_Position, 0.0, 1.0);
-    //gl.vertexAttrib3f(a_Position, 0.0, 0.0, 0.0);
 
     //声明颜色
     gl.clearColor(0, 0, 0, 1);
     //刷底色
     gl.clear(gl.COLOR_BUFFER_BIT);
 
-    //绘制顶点
-    gl.drawArrays(gl.POINTS, 0, 1);
+    //修改获取到的变量
+    //vertexAttrib1f(变量名,x)
+    //vertexAttrib2f(变量名,x,y)
+    //vertexAttrib3f(变量名,x,y,z)
+    //vertexAttrib4f(变量名,x,y,z,方向)
+
+    //存储订单数据的数组
+    const a_points: { x: number, y: number }[] = [];
+
+    function render() {
+      gl.clear(gl.COLOR_BUFFER_BIT);
+      a_points.forEach(({ x, y }) => {
+        //修改顶点位置
+        gl.vertexAttrib2f(a_Position, x, y);
+        gl.drawArrays(gl.POINTS, 0, 1);
+      });
+    }
   }
 </script>
 
