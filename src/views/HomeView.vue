@@ -39,10 +39,11 @@
     //顶点着色器
     const vsSource = `
 attribute vec4 a_Position;
+attribute float a_PointSize;
 void main() {
   //attribute的意思类似与js的export，导出让外部使用，并且可以修改
   gl_Position = a_Position;
-  gl_PointSize = 50.0;
+  gl_PointSize = a_PointSize;
 }
 `;
     //片元着色器
@@ -60,6 +61,7 @@ void main() {
     //设置attribute变量
     //获取到着色器语言里面的变量
     const a_Position = gl.getAttribLocation(gl.program, "a_Position");
+    const a_PointSize = gl.getAttribLocation(gl.program, "a_PointSize");
 
     //声明颜色
     gl.clearColor(0, 0, 0, 1);
@@ -72,14 +74,19 @@ void main() {
     //vertexAttrib3f(变量名,x,y,z)
     //vertexAttrib4f(变量名,x,y,z,方向)
 
+    //修改尺寸
+    gl.vertexAttrib1f(a_Position, 0.1);
+    gl.vertexAttrib1f(a_PointSize, 50);
+
     //存储订单数据的数组
     const a_points: { x: number, y: number }[] = [];
 
     function render() {
       gl.clear(gl.COLOR_BUFFER_BIT);
-      a_points.forEach(({ x, y }) => {
+      a_points.forEach(({ x, y }, i) => {
         //修改顶点位置
         gl.vertexAttrib2f(a_Position, x, y);
+        gl.vertexAttrib1f(a_PointSize, Math.random() * 100);
         gl.drawArrays(gl.POINTS, 0, 1);
       });
     }
