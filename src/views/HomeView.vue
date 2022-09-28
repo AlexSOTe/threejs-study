@@ -45,7 +45,12 @@ void main() {
     //获取到着色器语言里面的变量
     const a_Position = gl.getAttribLocation(gl.program, "a_Position");
     //修改获取到的变量
-    gl.vertexAttrib3f(a_Position, 0.0, 0.0, 0.0);
+    //vertexAttrib1f(变量名,x)
+    //vertexAttrib2f(变量名,x,y)
+    //vertexAttrib3f(变量名,x,y,z)
+    //vertexAttrib4f(变量名,x,y,z,方向)
+    gl.vertexAttrib2f(a_Position, 0.0, 1.0);
+    //gl.vertexAttrib3f(a_Position, 0.0, 0.0, 0.0);
 
     //声明颜色
     gl.clearColor(0, 0, 0, 1);
