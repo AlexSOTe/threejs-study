@@ -19,7 +19,7 @@ export function initShaders(gl: any, vsSource: string, fsSource: string) {
   return true;
 }
 
-export function loadShader(gl: any, type: any, source: string) {
+export function loadShader(gl: any, type: number, source: string) {
   //根据着色类型，建立着色器对象
   const shader = gl.createShader(type);
   //将着色器源文件传入着色器对象
