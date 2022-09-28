@@ -17,7 +17,30 @@
     const cvs = canvas.value!;
     Init(cvs);
   });
+
   function Init(cvs: HTMLCanvasElement) {
+    cvs.addEventListener('mousemove', (evt: MouseEvent) => {
+      const { clientX, clientY } = evt;
+      const { left, top } = cvs.getBoundingClientRect();
+      //获取到鼠标再canvas中点击的位置
+      const [mX, mY] = [clientX - left, clientY - top];
+      console.log("鼠标css点击位置：", mX, mY);
+      //坐标系转换
+      const hafCvsW = cvs.width / 2;
+      const hafCvsH = cvs.height / 2;
+      const [x, y] = [mX - hafCvsW, -(mY - hafCvsH)];
+      console.log("鼠标webgl坐标点击位置：", x, y);
+
+      //设置点的位置
+      const a_Position = gl.getAttribLocation(gl.program, "a_Position");
+      gl.vertexAttrib2f(a_Position, x / hafCvsW, y / hafCvsH);
+
+
+      //刷底色
+      gl.clear(gl.COLOR_BUFFER_BIT);
+      //绘制顶点
+      gl.drawArrays(gl.POINTS, 0, 1);
+    });
     cvs.width = window.innerWidth;
     cvs.height = window.innerHeight;
     //顶点着色器
@@ -49,7 +72,8 @@ void main() {
     //vertexAttrib2f(变量名,x,y)
     //vertexAttrib3f(变量名,x,y,z)
     //vertexAttrib4f(变量名,x,y,z,方向)
-    gl.vertexAttrib2f(a_Position, 0.0, 1.0);
+    //设置点的位置
+    //gl.vertexAttrib2f(a_Position, 0.0, 1.0);
     //gl.vertexAttrib3f(a_Position, 0.0, 0.0, 0.0);
 
     //声明颜色
