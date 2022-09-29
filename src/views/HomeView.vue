@@ -10,6 +10,17 @@
   import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
   import { initShaders } from "../utils/tools";
 
+  interface IPoint {
+    x: number;
+    y: number;
+    size: number;
+    color: {
+      r: number;
+      g: number;
+      b: number;
+      a: number;
+    }
+  }
 
   const canvas = ref<HTMLCanvasElement | null>(null);
 
@@ -32,7 +43,18 @@
       //console.log("鼠标webgl坐标点击位置：", x, y);
 
       if (a_points.length <= 5000) {
-        a_points.push({ x: x / hafCvsW, y: y / hafCvsH });
+        const obj: IPoint = {
+          x: x / hafCvsW,
+          y: y / hafCvsH,
+          size: Math.random() * 5 + 2,
+          color: {
+            r: Math.random(),
+            g: Math.random(),
+            b: Math.random(),
+            a: Math.random(),
+          },
+        }
+        a_points.push(obj);
       }
       render();
     }
@@ -66,6 +88,9 @@ void main() {
 `;
 
     const gl = cvs.getContext("webgl")!;
+    //开启颜色合成
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     //初始化着色器
     //功能：解析着色器文本，整合到程序对象，关联webgl上下文对象，实现两种语言的相互通信
     initShaders(gl, vsSource, fsSource);
@@ -92,16 +117,16 @@ void main() {
     gl.vertexAttrib1f(a_PointSize, 50);
 
     //存储订单数据的数组
-    const a_points: { x: number, y: number }[] = [];
+    const a_points: IPoint[] = [];
 
     function render() {
-      gl.clear(gl.COLOR_BUFFER_BIT);
-      a_points.forEach(({ x, y }, i) => {
+      //gl.clear(gl.COLOR_BUFFER_BIT);
+      a_points.forEach((v: IPoint, i) => {
         //修改顶点位置
-        gl.vertexAttrib2f(a_Position, x, y);
-        gl.vertexAttrib1f(a_PointSize, Math.random() * 100);
-        //gl.uniform4f(u_FragColor, Math.random(), Math.random(), Math.random(), Math.random());//或者👇
-        gl.uniform4fv(u_FragColor, [Math.random(), Math.random(), Math.random(), Math.random()]);
+        gl.vertexAttrib2f(a_Position, v.x, v.y);
+        gl.vertexAttrib1f(a_PointSize, v.size);
+        const arr = new Float32Array([v.color.r, v.color.g, v.color.b, v.color.a])
+        gl.uniform4fv(u_FragColor, arr);
         gl.drawArrays(gl.POINTS, 0, 1);
       });
     }
