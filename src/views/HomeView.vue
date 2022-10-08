@@ -9,18 +9,8 @@
   import { onMounted, ref } from "vue";
   import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
   import { initShaders } from "../utils/tools";
-
-  interface IPoint {
-    x: number;
-    y: number;
-    size: number;
-    color: {
-      r: number;
-      g: number;
-      b: number;
-      a: number;
-    }
-  }
+  import { SubTrack } from "../modules/SubTrack";
+  import { Track } from "../modules/Track";
 
   const canvas = ref<HTMLCanvasElement | null>(null);
 
@@ -30,37 +20,6 @@
   });
 
   function Init(cvs: HTMLCanvasElement) {
-    function onEvent(evt: MouseEvent) {
-      const { clientX, clientY } = evt;
-      const { left, top } = cvs.getBoundingClientRect();
-      //获取到鼠标再canvas中点击的位置
-      const [mX, mY] = [clientX - left, clientY - top];
-      //console.log("鼠标css点击位置：", mX, mY);
-      //坐标系转换
-      const hafCvsW = cvs.width / 2;
-      const hafCvsH = cvs.height / 2;
-      const [x, y] = [mX - hafCvsW, -(mY - hafCvsH)];
-      //console.log("鼠标webgl坐标点击位置：", x, y);
-
-      if (a_points.length <= 5000) {
-        const obj: IPoint = {
-          x: x / hafCvsW,
-          y: y / hafCvsH,
-          size: Math.random() * 5 + 2,
-          color: {
-            r: Math.random(),
-            g: Math.random(),
-            b: Math.random(),
-            a: Math.random(),
-          },
-        }
-        a_points.push(obj);
-      }
-      render();
-    }
-    cvs.addEventListener('click', onEvent);
-    cvs.width = window.innerWidth;
-    cvs.height = window.innerHeight;
     //顶点着色器
     const vsSource = `
 //attribute的意思类似与js的export，导出让外部使用，并且可以修改
@@ -86,6 +45,8 @@ void main() {
   gl_FragColor = u_FragColor;
 }
 `;
+    cvs.width = window.innerWidth;
+    cvs.height = window.innerHeight;
 
     const gl = cvs.getContext("webgl")!;
     //开启颜色合成
@@ -112,25 +73,84 @@ void main() {
     //vertexAttrib3f(变量名,x,y,z)
     //vertexAttrib4f(变量名,x,y,z,方向)
 
-    //修改尺寸
-    gl.vertexAttrib1f(a_Position, 0.1);
-    gl.vertexAttrib1f(a_PointSize, 50);
-
     //存储订单数据的数组
-    const a_points: IPoint[] = [];
+    const a_points: IStar[] = [];
 
+    const track = new Track();
+
+    function onEvent(evt: MouseEvent) {
+      const { clientX, clientY } = evt;
+      const { left, top } = cvs.getBoundingClientRect();
+      //获取到鼠标再canvas中点击的位置
+      const [mX, mY] = [clientX - left, clientY - top];
+      //坐标系转换
+      const hafCvsW = cvs.width / 2;
+      const hafCvsH = cvs.height / 2;
+      const [x, y] = [mX - hafCvsW, -(mY - hafCvsH)];
+
+      if (a_points.length <= 5000) {
+        const size = Math.random() * 30 + 30;
+        const colorA = 1;
+        const obj: IStar = {
+          x: x / hafCvsW,
+          y: y / hafCvsH,
+          size: size,
+          colorR: Math.random(),
+          colorG: Math.random(),
+          colorB: Math.random(),
+          colorA: colorA,
+          fms: new Map<string, IFm[]>()
+            .set(
+              'colorA',
+              [
+                { time: 500, value: colorA },
+                { time: 1000, value: 0 },
+                { time: 1500, value: colorA },
+              ]
+            )
+          //.set(
+          //  'size',
+          //  [
+          //    { time: 500, value: size },
+          //    { time: 1000, value: size * 0.1 },
+          //    { time: 1500, value: size },
+          //  ]
+          //),
+        }
+        a_points.push(obj);
+
+        const subTrack = new SubTrack(obj);
+        subTrack.loop = true;
+        subTrack.start = Date.now();
+        subTrack.timeLen = 2000;
+        track.add(subTrack);
+      }
+    }
+    cvs.addEventListener('click', onEvent);
+
+
+    /**
+     * 全局时间线
+     */
     function render() {
-      //gl.clear(gl.COLOR_BUFFER_BIT);
-      a_points.forEach((v: IPoint, i) => {
+      //刷底色
+      gl.clear(gl.COLOR_BUFFER_BIT);
+
+      a_points.forEach((star: IStar, i) => {
         //修改顶点位置
-        gl.vertexAttrib2f(a_Position, v.x, v.y);
-        gl.vertexAttrib1f(a_PointSize, v.size);
-        const arr = new Float32Array([v.color.r, v.color.g, v.color.b, v.color.a])
+        gl.vertexAttrib2f(a_Position, star.x, star.y);
+        //修改顶点尺寸
+        gl.vertexAttrib1f(a_PointSize, star.size);
+        const arr = new Float32Array([1, 1, 1, star.colorA]);
+        //修改顶点颜色
         gl.uniform4fv(u_FragColor, arr);
+        //画点
         gl.drawArrays(gl.POINTS, 0, 1);
       });
+      track.update(Date.now());
+      requestAnimationFrame(render);
     }
-
+    render();
   }
 </script>
 
