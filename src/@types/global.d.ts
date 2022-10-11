@@ -6,15 +6,15 @@ declare interface IAnyObject {
 }
 
 /**
- * ¹Ø¼üÖ¡
+ * å…³é”®å¸§
  */
 declare interface IFm {
   /**
-   * ¹Ø¼üÖ¡ËùÔÚÊ±¼äµã
+   * å…³é”®å¸§æ‰€åœ¨æ—¶é—´ç‚¹
    */
   time: number;
   /**
-   * ¶¯»­ÊôĞÔ¶ÔÓ¦µÄÖµ
+   * åŠ¨ç”»å±æ€§å¯¹åº”çš„å€¼
    */
   value: number;
 }

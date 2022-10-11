@@ -89,7 +89,7 @@ void main() {
       const [x, y] = [mX - hafCvsW, -(mY - hafCvsH)];
 
       if (a_points.length <= 5000) {
-        const size = Math.random() * 30 + 30;
+        const size = Math.random() * 3 + 3;
         const colorA = 1;
         const obj: IStar = {
           x: x / hafCvsW,
@@ -108,19 +108,19 @@ void main() {
                 { time: 1500, value: colorA },
               ]
             )
-          //.set(
-          //  'size',
-          //  [
-          //    { time: 500, value: size },
-          //    { time: 1000, value: size * 0.1 },
-          //    { time: 1500, value: size },
-          //  ]
-          //),
+            .set(
+              'size',
+              [
+                { time: 500, value: size },
+                { time: 1000, value: size },
+                { time: 1500, value: size },
+              ]
+            ),
         }
         a_points.push(obj);
 
         const subTrack = new SubTrack(obj);
-        subTrack.loop = true;
+        subTrack.loop = false;
         subTrack.start = Date.now();
         subTrack.timeLen = 2000;
         track.add(subTrack);

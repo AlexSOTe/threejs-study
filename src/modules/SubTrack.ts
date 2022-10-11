@@ -12,14 +12,21 @@ function getValBetweenFms(localTime: number, fms: IFm[], last: number): number |
     const fm2 = fms[i + 1];
     //判断本地时间是否在两个关键帧之间
     if (
+      fm1 &&
+      fm2 &&
       localTime >= fm1.time &&
       localTime <= fm2.time
     ) {
-      const x = fm2.time - fm1.time;
-      const y = fm2.value - fm1.value;
-      const k = y / x;
-      const b = y - k * x;
-      return k * localTime + b;
+      //两关键帧之间的时间差
+      const betTime = fm2.time - fm1.time;
+      //两关键帧之间的值差
+      const betValue = fm2.value - fm1.value;
+      //斜率
+      const k = betValue / betTime;
+      //求出b, b = y - kx
+      const b = fm1.value - fm1.time * k;
+      const val = k * localTime + b;
+      return val;
     }
   }
 }
