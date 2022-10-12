@@ -5,7 +5,16 @@
 </template>
 
 <script setup lang="ts">
-  import { RouterLink, RouterView } from 'vue-router'
+  import { onMounted } from 'vue';
+  import { RouterLink, RouterView } from 'vue-router';
+  onMounted(() => {
+    const AppEle = document.querySelector('.App');
+    AppEle?.addEventListener("touchmove", (evt) => {
+      evt.preventDefault();
+      evt.stopPropagation();
+      return false;
+    });
+  });
 </script>
 
 <style scoped lang="scss">

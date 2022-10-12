@@ -120,12 +120,14 @@ void main() {
         a_points.push(obj);
 
         const subTrack = new SubTrack(obj);
-        subTrack.loop = false;
+        subTrack.loop = true;
         subTrack.start = Date.now();
         subTrack.timeLen = 2000;
         track.add(subTrack);
       }
     }
+
+
     cvs.addEventListener('click', onEvent);
 
 
@@ -141,9 +143,8 @@ void main() {
         gl.vertexAttrib2f(a_Position, star.x, star.y);
         //修改顶点尺寸
         gl.vertexAttrib1f(a_PointSize, star.size);
-        const arr = new Float32Array([1, 1, 1, star.colorA]);
         //修改顶点颜色
-        gl.uniform4fv(u_FragColor, arr);
+        gl.uniform4fv(u_FragColor, new Float32Array([star.colorA, star.colorG, star.colorB, star.colorA]));
         //画点
         gl.drawArrays(gl.POINTS, 0, 1);
       });
