@@ -78,7 +78,7 @@ void main() {
 
     const track = new Track();
 
-    function onEvent(evt: MouseEvent) {
+    function onEvent(evt: MouseEvent, startTime: number = Date.now()) {
       const { clientX, clientY } = evt;
       const { left, top } = cvs.getBoundingClientRect();
       //获取到鼠标再canvas中点击的位置
@@ -89,7 +89,7 @@ void main() {
       const [x, y] = [mX - hafCvsW, -(mY - hafCvsH)];
 
       if (a_points.length <= 5000) {
-        const size = Math.random() * 3 + 3;
+        const size = Math.random() * 5 + 3;
         const colorA = 1;
         const obj: IStar = {
           x: x / hafCvsW,
@@ -112,7 +112,7 @@ void main() {
               'size',
               [
                 { time: 500, value: size },
-                { time: 1000, value: size },
+                { time: 1000, value: 1 },
                 { time: 1500, value: size },
               ]
             ),
@@ -121,7 +121,7 @@ void main() {
 
         const subTrack = new SubTrack(obj);
         subTrack.loop = true;
-        subTrack.start = Date.now();
+        subTrack.start = startTime;
         subTrack.timeLen = 2000;
         track.add(subTrack);
       }
@@ -130,6 +130,13 @@ void main() {
 
     cvs.addEventListener('click', onEvent);
 
+    //for (var i = 0; i < 10000; i++) {
+    //  const posObj = {
+    //    clientX: Math.random() * cvs.width,
+    //    clientY: Math.random() * cvs.height,
+    //  };
+    //  onEvent(posObj as MouseEvent, Date.now() + Math.random() * 6666);
+    //}
 
     /**
      * 全局时间线
